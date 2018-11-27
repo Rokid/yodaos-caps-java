@@ -13,22 +13,38 @@ OUTINTER_DIR := $(ROOT_DIR)/out/intermediates
 OUT_JAVACLASS_DIR := $(OUTINTER_DIR)/java-classes
 OUT_OBJS_DIR := $(OUTINTER_DIR)/objs
 JAVAC_FLAGS := -g:none
+
+# ubuntu
+CXX := g++
+DL_SUFFIX := so
+# set include dir of jni.h/caps.h
 CAPS_JNI_INCLUDES := \
+	/home/ming/bin/jdk1.8.0_151/include \
+	/home/ming/bin/jdk1.8.0_151/include/linux \
+	/home/ming/buildroot/host/usr/include/caps
+# set dir of libcaps
+CAPS_JNI_LIB_PATHS := \
+	/home/ming/buildroot/host/usr/lib
+ALT_CXXFLAGS := -Wno-write-strings
+ALT_LDFLAGS := -shared -s
+# macosx
+# CXX := c++
+# DL_SUFFIX := dylib
+# CAPS_JNI_INCLUDES := \
 	/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers \
 	/Users/zhangchen/work/buildroot/host/usr/include/caps
-CAPS_JNI_LIB_PATHS := \
+# CAPS_JNI_LIB_PATHS := \
 	/Users/zhangchen/work/buildroot/host/usr/lib
+# ALT_CXXFLAGS := -Wno-writable-strings
+# ALT_LDFLAGS := -dynamiclib
+
 CAPS_JNI_DEP_LIBS := caps
 CXXFLAGS := -fPIC -std=c++11 -O3 \
-	-Wno-writable-strings \
-	$(addprefix -I, $(CAPS_JNI_INCLUDES))
-LDFLAGS := -dynamiclib \
+	$(addprefix -I, $(CAPS_JNI_INCLUDES)) \
+	$(ALT_CXXFLAGS)
+LDFLAGS := $(ALT_LDFLAGS) \
 	$(addprefix -L, $(CAPS_JNI_LIB_PATHS)) \
 	$(addprefix -l, $(CAPS_JNI_DEP_LIBS))
-# CXX := g++
-# DL_SUFFIX := so
-CXX := c++
-DL_SUFFIX := dylib
 
 CAPS_JAVA_SOURCE_DIR := $(ROOT_DIR)/src/java
 CAPS_JAVA_SOURCE_FILES_ABS := $(shell find $(CAPS_JAVA_SOURCE_DIR) -name *.java)
