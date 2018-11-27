@@ -102,7 +102,9 @@ void NativeCaps::setReadBinaryResultSize(JNIEnv* env, jobject obj, jint v) {
 }
 
 static jlong nativeCreate(JNIEnv* env, jclass clazz) {
-  return (jlong)(new NativeCaps());
+  NativeCaps* ncaps = new NativeCaps();
+  ncaps->caps = Caps::new_instance();
+  return (jlong)ncaps;
 }
 
 static jlong nativeParse(JNIEnv* env, jclass clazz, jbyteArray data, jint offset, jint length) {
@@ -229,6 +231,13 @@ static jint nativeSerialize(JNIEnv* env, jobject thiz, jbyteArray result, jint o
   return r;
 }
 
+static void nativeDestroy(JNIEnv* env, jobject thiz) {
+  NativeCaps* ncaps = NativeCaps::get(env, thiz);
+  if (ncaps) {
+    delete ncaps;
+  }
+}
+
 static jint nativeGetByIndex(JNIEnv* env, jobject thiz, jlong handle, jint idx) {
   const int8_t* p = reinterpret_cast<const int8_t*>(handle);
   return p[idx];
@@ -324,6 +333,7 @@ static JNINativeMethod capsMethods[] = {
   { "nativeWrite", "([BII)I", (void*)nativeWriteBinary },
   { "nativeWrite", "(Lcom/rokid/utils/Caps;)I", (void*)nativeWriteCaps },
   { "nativeSerialize", "([BIII)I", (void*)nativeSerialize },
+  { "nativeDestroy", "()V", (void*)nativeDestroy },
   { "nativeInit", "(Ljava/lang/Class;Ljava/lang/Class;)V", (void*)nativeInit }
 };
 
