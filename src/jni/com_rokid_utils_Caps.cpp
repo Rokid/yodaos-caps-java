@@ -222,12 +222,16 @@ static jint nativeSerialize(JNIEnv* env, jobject thiz, jbyteArray result, jint o
   NativeCaps* ncaps = NativeCaps::get(env, thiz);
   if (ncaps == nullptr)
     return ERROR_DESTROYED;
-  jbyte* buf = env->GetByteArrayElements(result, nullptr);
+  jbyte* buf = nullptr;
+  if (result != nullptr)
+    buf = env->GetByteArrayElements(result, nullptr);
   int32_t r = ncaps->caps->serialize(buf + offset, length, flags);
-  if (r <= length)
-    env->ReleaseByteArrayElements(result, buf, JNI_COMMIT);
-  else
-    env->ReleaseByteArrayElements(result, buf, JNI_ABORT);
+  if (result != nullptr) {
+    if (r <= length)
+      env->ReleaseByteArrayElements(result, buf, JNI_COMMIT);
+    else
+      env->ReleaseByteArrayElements(result, buf, JNI_ABORT);
+  }
   return r;
 }
 
